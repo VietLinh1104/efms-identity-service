@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/roles")
+@RequestMapping("/v1/roles")
 public class RoleController {
 
     @Autowired
