@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: efms-identity-service
+
+  profiles:
+    active: local
