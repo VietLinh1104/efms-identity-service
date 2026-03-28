@@ -4,9 +4,9 @@ spring:
       on-profile: local
 
   datasource:
-    url: jdbc:postgresql://metro.proxy.rlwy.net:45325/railway
-    username: postgres
-    password: ihFNlDUmyKcsmHmPojoueImiOCXblfMq
+    url:
+    username:
+    password:
     driver-class-name: org.postgresql.Driver
 
   jpa:
