@@ -3,4 +3,4 @@ spring:
     name: efms-identity-service
 
   profiles:
-    active: prod
+    active: dev
