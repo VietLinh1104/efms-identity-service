@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  identity-service:
+    build: .
+    container_name: efms-identity-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-prod}
+      - DB_URL=${DB_URL:-jdbc:postgresql://identity-db:5432/efms_db}
+      - DB_USERNAME=${DB_USERNAME:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-yourpassword}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRATION_MS=${JWT_EXPIRATION_MS:-86400000}
+    depends_on:
+      - identity-db
+
+  identity-db:
+    image: postgres:16-alpine
+    container_name: efms-identity-db
+    environment:
+      - POSTGRES_DB=efms_db
+      - POSTGRES_USER=${DB_USERNAME:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-yourpassword}
+    ports:
+      - "5433:5432" # Changed to 5433 to avoid conflict with local postgres if any
+    volumes:
+      - identity-db-data:/var/lib/postgresql/data
+
+volumes:
+  identity-db-data:
