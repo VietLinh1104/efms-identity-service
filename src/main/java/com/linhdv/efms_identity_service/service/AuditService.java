@@ -1,7 +1,6 @@
 package com.linhdv.efms_identity_service.service;
 
 import com.linhdv.efms_identity_service.entity.AuditLog;
-import com.linhdv.efms_identity_service.entity.User;
 import com.linhdv.efms_identity_service.repository.AuditLogRepository;
 import com.linhdv.efms_identity_service.repository.UserRepository;
 import com.linhdv.efms_identity_service.security.services.UserDetailsImpl;
@@ -25,7 +24,8 @@ public class AuditService {
     private UserRepository userRepository;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void logChange(String tableName, UUID recordId, String action, Map<String, Object> oldData, Map<String, Object> newData) {
+    public void logChange(String tableName, UUID recordId, String action, Map<String, Object> oldData,
+            Map<String, Object> newData) {
         AuditLog log = new AuditLog();
         log.setId(UUID.randomUUID());
         log.setTableName(tableName);

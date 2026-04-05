@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -46,9 +45,12 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
-        if (request.getName() != null) user.setName(request.getName());
-        if (request.getEmail() != null) user.setEmail(request.getEmail());
-        if (request.getIsActive() != null) user.setIsActive(request.getIsActive());
+        if (request.getName() != null)
+            user.setName(request.getName());
+        if (request.getEmail() != null)
+            user.setEmail(request.getEmail());
+        if (request.getIsActive() != null)
+            user.setIsActive(request.getIsActive());
 
         if (request.getRoleId() != null) {
             Role role = roleRepository.findById(request.getRoleId())

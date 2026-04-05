@@ -87,24 +87,24 @@ public class RoleService {
     private void assignPermissionToRole(Role role, UUID permissionId) {
         Permission permission = permissionRepository.findById(permissionId)
                 .orElseThrow(() -> new RuntimeException("Permission not found with id: " + permissionId));
-        
+
         RolePermission rolePermission = new RolePermission();
         RolePermissionId rpId = new RolePermissionId();
         rpId.setRoleId(role.getId());
         rpId.setPermissionId(permissionId);
-        
+
         rolePermission.setId(rpId);
         rolePermission.setRole(role);
         rolePermission.setPermission(permission);
         rolePermission.setCreatedAt(Instant.now());
-        
+
         rolePermissionRepository.save(rolePermission);
     }
 
     private RoleResponse enrichRoleWithPermissions(Role role) {
         RoleResponse response = roleMapper.toResponse(role);
-        List<RolePermission> rolePermissions = rolePermissionRepository.findByRoleId(role.getId());
-        // permissions are already partially mapped by RoleMapper if mapped correctly, but let's be explicit if needed
+        // List<RolePermission> rolePermissions =
+        // rolePermissionRepository.findByRoleId(role.getId());
         return response;
     }
 }
