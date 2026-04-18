@@ -66,4 +66,16 @@ public class UserService {
     public void deleteUser(UUID id) {
         userRepository.deleteById(id);
     }
+
+    @Transactional(readOnly = true)
+    public List<com.linhdv.efms_identity_service.dto.response.UserInternalResponse> getUsersBatch(java.util.Collection<UUID> ids, UUID companyId) {
+        return userRepository.findAllByIdInAndCompanyId(ids, companyId).stream()
+                .map(user -> com.linhdv.efms_identity_service.dto.response.UserInternalResponse.builder()
+                        .id(user.getId())
+                        .fullName(user.getName())
+                        .email(user.getEmail())
+                        .avatar(null) // Entity doesn't have avatar yet
+                        .build())
+                .collect(Collectors.toList());
+    }
 }

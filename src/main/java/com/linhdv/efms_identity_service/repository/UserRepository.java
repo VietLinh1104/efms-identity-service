@@ -11,4 +11,5 @@ import java.util.UUID;
 public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByEmail(String email);
     Boolean existsByEmail(String email);
+    java.util.List<User> findAllByIdInAndCompanyId(java.util.Collection<UUID> ids, UUID companyId);
 }
