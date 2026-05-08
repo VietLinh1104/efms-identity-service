@@ -5,7 +5,7 @@ spring:
 
   mail:
     host: smtp.zoho.com
-    port: 587
+    port: ${ZOHO_PORT}
     username: ${ZOHO_EMAIL}
     password: ${ZOHO_PASSWORD}
     properties:
