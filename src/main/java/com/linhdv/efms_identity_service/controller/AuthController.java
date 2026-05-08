@@ -52,10 +52,10 @@ public class AuthController {
     @Autowired
     JwtUtils jwtUtils;
 
-    @Autowired
-    private org.springframework.mail.javamail.JavaMailSender mailSender;
+    @org.springframework.beans.factory.annotation.Value("${resend.api-key}")
+    private String resendApiKey;
 
-    @org.springframework.beans.factory.annotation.Value("${spring.mail.username}")
+    @org.springframework.beans.factory.annotation.Value("${resend.from-email}")
     private String fromEmail;
 
     private static class OtpData {
@@ -105,15 +105,22 @@ public class AuthController {
         otpStorage.put(email, new OtpData(otp, java.time.Instant.now().plus(5, java.time.temporal.ChronoUnit.MINUTES)));
 
         try {
-            org.springframework.mail.SimpleMailMessage message = new org.springframework.mail.SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setTo(email);
-            message.setSubject("Mã xác thực đăng ký tài khoản - EFMS");
-            message.setText("Xin chào,\n\nMã xác thực đăng ký tài khoản của bạn là: " + otp
-                    + "\nMã này sẽ hết hạn trong 5 phút.\n\nTrân trọng!");
-            mailSender.send(message);
+            org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
+            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(resendApiKey);
+
+            java.util.Map<String, Object> requestBody = new java.util.HashMap<>();
+            requestBody.put("from", fromEmail);
+            requestBody.put("to", new String[]{email});
+            requestBody.put("subject", "Mã xác thực đăng ký tài khoản - EFMS");
+            requestBody.put("html", "<p>Xin chào,</p><p>Mã xác thực đăng ký tài khoản của bạn là: <strong>" + otp + "</strong></p><p>Mã này sẽ hết hạn trong 5 phút.</p><p>Trân trọng!</p>");
+
+            org.springframework.http.HttpEntity<java.util.Map<String, Object>> request = new org.springframework.http.HttpEntity<>(requestBody, headers);
+            
+            restTemplate.postForEntity("https://api.resend.com/emails", request, String.class);
         } catch (Exception e) {
-            logger.error("Failed to send OTP email", e);
+            logger.error("Failed to send OTP email via Resend", e);
             return ResponseEntity.internalServerError().body(new MessageResponse("Error: Failed to send email!"));
         }
 
