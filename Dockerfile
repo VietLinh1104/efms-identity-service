@@ -11,7 +11,6 @@ WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 
 # Define environment variables with default values
-ENV SERVER_PORT=8081
 ENV SPRING_PROFILES_ACTIVE=prod
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
