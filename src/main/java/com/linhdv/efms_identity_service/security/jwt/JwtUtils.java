@@ -39,6 +39,22 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
 
+    public String generateInvitationToken(String email, String roleId, String companyId) {
+        return Jwts.builder()
+                .setSubject(email)
+                .claim("roleId", roleId)
+                .claim("companyId", companyId)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date((new Date()).getTime() + 86400000)) // 24 hours
+                .signWith(key(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public Claims getClaimsFromJwtToken(String token) {
+        return Jwts.parserBuilder().setSigningKey(key()).build()
+                .parseClaimsJws(token).getBody();
+    }
+
     public String getUserNameFromJwtToken(String token) {
         return Jwts.parserBuilder().setSigningKey(key()).build()
                 .parseClaimsJws(token).getBody().getSubject();

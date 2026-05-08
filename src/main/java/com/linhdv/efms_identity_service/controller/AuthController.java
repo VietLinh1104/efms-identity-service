@@ -22,6 +22,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.UUID;
@@ -30,6 +32,8 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+
     @Autowired
     AuthenticationManager authenticationManager;
 
@@ -47,6 +51,24 @@ public class AuthController {
 
     @Autowired
     JwtUtils jwtUtils;
+
+    @Autowired
+    private org.springframework.mail.javamail.JavaMailSender mailSender;
+
+    @org.springframework.beans.factory.annotation.Value("${spring.mail.username}")
+    private String fromEmail;
+
+    private static class OtpData {
+        String code;
+        java.time.Instant expiry;
+
+        OtpData(String code, java.time.Instant expiry) {
+            this.code = code;
+            this.expiry = expiry;
+        }
+    }
+
+    private final java.util.Map<String, OtpData> otpStorage = new java.util.concurrent.ConcurrentHashMap<>();
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
@@ -70,8 +92,45 @@ public class AuthController {
                 roles));
     }
 
+    @PostMapping("/register/send-code/{email}")
+    public ResponseEntity<?> sendRegistrationCode(@PathVariable String email) {
+        if (email == null || email.isEmpty()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is required!"));
+        }
+        if (userRepository.existsByEmail(email)) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already in use!"));
+        }
+
+        String otp = String.format("%06d", new java.util.Random().nextInt(999999));
+        otpStorage.put(email, new OtpData(otp, java.time.Instant.now().plus(5, java.time.temporal.ChronoUnit.MINUTES)));
+
+        try {
+            org.springframework.mail.SimpleMailMessage message = new org.springframework.mail.SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(email);
+            message.setSubject("Mã xác thực đăng ký tài khoản - EFMS");
+            message.setText("Xin chào,\n\nMã xác thực đăng ký tài khoản của bạn là: " + otp
+                    + "\nMã này sẽ hết hạn trong 5 phút.\n\nTrân trọng!");
+            mailSender.send(message);
+        } catch (Exception e) {
+            logger.error("Failed to send OTP email", e);
+            return ResponseEntity.internalServerError().body(new MessageResponse("Error: Failed to send email!"));
+        }
+
+        return ResponseEntity.ok(new MessageResponse("Verification code sent successfully!"));
+    }
+
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest signUpRequest) {
+        OtpData otpData = otpStorage.get(signUpRequest.getEmail());
+        if (otpData == null || otpData.expiry.isBefore(java.time.Instant.now())
+                || !otpData.code.equals(signUpRequest.getOtp())) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Error: Invalid or expired verification code!"));
+        }
+
+        otpStorage.remove(signUpRequest.getEmail());
+
         if (userRepository.existsByEmail(signUpRequest.getEmail())) {
             return ResponseEntity
                     .badRequest()
@@ -110,4 +169,5 @@ public class AuthController {
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
+
 }
