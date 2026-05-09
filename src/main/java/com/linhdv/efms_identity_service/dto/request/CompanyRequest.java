@@ -15,5 +15,9 @@ public class CompanyRequest {
     @Size(max = 10)
     private String currency = "VND";
 
+    private String taxCode;
+
+    private String address;
+
     private Boolean isActive = true;
 }

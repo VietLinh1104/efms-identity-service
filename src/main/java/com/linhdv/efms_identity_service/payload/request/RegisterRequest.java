@@ -29,4 +29,8 @@ public class RegisterRequest {
     @NotBlank
     @Size(max = 255)
     private String companyName;
+
+    private String taxCode;
+
+    private String address;
 }

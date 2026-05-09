@@ -148,6 +148,8 @@ public class AuthController {
         Company company = new Company();
         company.setId(UUID.randomUUID());
         company.setName(signUpRequest.getCompanyName());
+        company.setTaxCode(signUpRequest.getTaxCode());
+        company.setAddress(signUpRequest.getAddress());
         company.setCurrency("VND");
         company.setIsActive(true);
         company = companyRepository.save(company);

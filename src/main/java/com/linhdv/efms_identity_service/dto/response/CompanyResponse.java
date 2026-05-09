@@ -12,6 +12,8 @@ public class CompanyResponse {
     private UUID id;
     private String name;
     private String currency;
+    private String taxCode;
+    private String address;
     private Boolean isActive;
     private Instant createdAt;
 }

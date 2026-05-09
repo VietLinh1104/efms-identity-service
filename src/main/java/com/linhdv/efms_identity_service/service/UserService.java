@@ -6,6 +6,9 @@ import com.linhdv.efms_identity_service.entity.*;
 import com.linhdv.efms_identity_service.mapper.UserMapper;
 import com.linhdv.efms_identity_service.repository.RoleRepository;
 import com.linhdv.efms_identity_service.repository.UserRepository;
+
+import lombok.NonNull;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,8 +70,19 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
+    @Transactional
+    public UserResponse setActiveUser(@NonNull UUID id, boolean isActive) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+
+        user.setIsActive(isActive);
+        user = userRepository.save(user);
+        return userMapper.toResponse(user);
+    }
+
     @Transactional(readOnly = true)
-    public List<com.linhdv.efms_identity_service.dto.response.UserInternalResponse> getUsersBatch(java.util.Collection<UUID> ids, UUID companyId) {
+    public List<com.linhdv.efms_identity_service.dto.response.UserInternalResponse> getUsersBatch(
+            java.util.Collection<UUID> ids, UUID companyId) {
         return userRepository.findAllByIdInAndCompanyId(ids, companyId).stream()
                 .map(user -> com.linhdv.efms_identity_service.dto.response.UserInternalResponse.builder()
                         .id(user.getId())
