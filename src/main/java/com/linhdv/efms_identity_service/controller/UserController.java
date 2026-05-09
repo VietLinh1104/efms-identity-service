@@ -5,10 +5,10 @@ import com.linhdv.efms_identity_service.dto.request.UserUpdateRequest;
 import com.linhdv.efms_identity_service.dto.response.UserResponse;
 import com.linhdv.efms_identity_service.service.UserService;
 import jakarta.validation.Valid;
+import com.linhdv.efms_identity_service.wrapper.PagedResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -19,8 +19,10 @@ public class UserController {
     private UserService userService;
 
     @GetMapping
-    public ApiResponse<List<UserResponse>> getAllUsers() {
-        return ApiResponse.success(userService.getAllUsers());
+    public ApiResponse<PagedResponse<UserResponse>> getAllUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ApiResponse.success(userService.getAllUsers(page, size));
     }
 
     @GetMapping("/{id}")

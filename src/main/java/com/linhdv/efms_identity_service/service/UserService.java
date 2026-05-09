@@ -9,6 +9,11 @@ import com.linhdv.efms_identity_service.repository.UserRepository;
 
 import lombok.NonNull;
 
+import com.linhdv.efms_identity_service.wrapper.PagedResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,10 +35,15 @@ public class UserService {
     private UserMapper userMapper;
 
     @Transactional(readOnly = true)
-    public List<UserResponse> getAllUsers() {
-        return userRepository.findAll().stream()
+    public PagedResponse<UserResponse> getAllUsers(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<User> userPage = userRepository.findAll(pageable);
+
+        List<UserResponse> content = userPage.getContent().stream()
                 .map(userMapper::toResponse)
                 .collect(Collectors.toList());
+
+        return PagedResponse.of(content, page, size, userPage.getTotalElements());
     }
 
     @Transactional(readOnly = true)
@@ -44,7 +54,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse updateUser(UUID id, UserUpdateRequest request) {
+    public UserResponse updateUser(@NonNull UUID id, UserUpdateRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
