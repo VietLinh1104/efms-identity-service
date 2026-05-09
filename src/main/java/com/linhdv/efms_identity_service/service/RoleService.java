@@ -1,10 +1,8 @@
 package com.linhdv.efms_identity_service.service;
 
 import com.linhdv.efms_identity_service.dto.request.RoleRequest;
-import com.linhdv.efms_identity_service.dto.response.PermissionResponse;
 import com.linhdv.efms_identity_service.dto.response.RoleResponse;
 import com.linhdv.efms_identity_service.entity.*;
-import com.linhdv.efms_identity_service.mapper.PermissionMapper;
 import com.linhdv.efms_identity_service.mapper.RoleMapper;
 import com.linhdv.efms_identity_service.repository.PermissionRepository;
 import com.linhdv.efms_identity_service.repository.RolePermissionRepository;
@@ -33,13 +31,10 @@ public class RoleService {
     @Autowired
     private RoleMapper roleMapper;
 
-    @Autowired
-    private PermissionMapper permissionMapper;
-
     @Transactional(readOnly = true)
     public List<RoleResponse> getAllRoles() {
         return roleRepository.findAll().stream()
-                .map(this::enrichRoleWithPermissions)
+                .map(roleMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
@@ -47,7 +42,7 @@ public class RoleService {
     public RoleResponse getRoleById(UUID id) {
         Role role = roleRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Role not found with id: " + id));
-        return enrichRoleWithPermissions(role);
+        return roleMapper.toResponse(role);
     }
 
     @Transactional
@@ -63,7 +58,7 @@ public class RoleService {
             }
         }
 
-        return enrichRoleWithPermissions(role);
+        return roleMapper.toResponse(role);
     }
 
     @Transactional
@@ -80,7 +75,7 @@ public class RoleService {
             }
         }
 
-        return enrichRoleWithPermissions(role);
+        return roleMapper.toResponse(role);
     }
 
     @Transactional
@@ -106,13 +101,4 @@ public class RoleService {
         rolePermissionRepository.save(rolePermission);
     }
 
-    private RoleResponse enrichRoleWithPermissions(Role role) {
-        RoleResponse response = roleMapper.toResponse(role);
-        List<RolePermission> rolePermissions = rolePermissionRepository.findByRoleId(role.getId());
-        List<PermissionResponse> permissions = rolePermissions.stream()
-                .map(rp -> permissionMapper.toResponse(rp.getPermission()))
-                .collect(Collectors.toList());
-        response.setPermissions(permissions);
-        return response;
-    }
 }
