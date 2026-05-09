@@ -23,18 +23,20 @@ public class UserDetailsImpl implements UserDetails {
     private String password;
 
     private Collection<? extends GrantedAuthority> authorities;
+    private List<String> permissions;
 
     public UserDetailsImpl(UUID id, String username, String email, UUID companyId, String password,
-                           Collection<? extends GrantedAuthority> authorities) {
+                           Collection<? extends GrantedAuthority> authorities, List<String> permissions) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.companyId = companyId;
         this.password = password;
         this.authorities = authorities;
+        this.permissions = permissions;
     }
 
-    public static UserDetailsImpl build(User user) {
+    public static UserDetailsImpl build(User user, List<String> permissions) {
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(user.getRole().getName()));
 
         return new UserDetailsImpl(
@@ -43,7 +45,8 @@ public class UserDetailsImpl implements UserDetails {
                 user.getEmail(),
                 user.getCompany().getId(),
                 user.getPassword(),
-                authorities);
+                authorities,
+                permissions);
     }
 
     @Override
@@ -61,6 +64,10 @@ public class UserDetailsImpl implements UserDetails {
 
     public UUID getCompanyId() {
         return companyId;
+    }
+
+    public List<String> getPermissions() {
+        return permissions;
     }
 
     @Override
