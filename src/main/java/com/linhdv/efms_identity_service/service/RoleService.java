@@ -1,8 +1,10 @@
 package com.linhdv.efms_identity_service.service;
 
 import com.linhdv.efms_identity_service.dto.request.RoleRequest;
+import com.linhdv.efms_identity_service.dto.response.PermissionResponse;
 import com.linhdv.efms_identity_service.dto.response.RoleResponse;
 import com.linhdv.efms_identity_service.entity.*;
+import com.linhdv.efms_identity_service.mapper.PermissionMapper;
 import com.linhdv.efms_identity_service.mapper.RoleMapper;
 import com.linhdv.efms_identity_service.repository.PermissionRepository;
 import com.linhdv.efms_identity_service.repository.RolePermissionRepository;
@@ -30,6 +32,9 @@ public class RoleService {
 
     @Autowired
     private RoleMapper roleMapper;
+
+    @Autowired
+    private PermissionMapper permissionMapper;
 
     @Transactional(readOnly = true)
     public List<RoleResponse> getAllRoles() {
@@ -103,8 +108,11 @@ public class RoleService {
 
     private RoleResponse enrichRoleWithPermissions(Role role) {
         RoleResponse response = roleMapper.toResponse(role);
-        // List<RolePermission> rolePermissions =
-        // rolePermissionRepository.findByRoleId(role.getId());
+        List<RolePermission> rolePermissions = rolePermissionRepository.findByRoleId(role.getId());
+        List<PermissionResponse> permissions = rolePermissions.stream()
+                .map(rp -> permissionMapper.toResponse(rp.getPermission()))
+                .collect(Collectors.toList());
+        response.setPermissions(permissions);
         return response;
     }
 }
