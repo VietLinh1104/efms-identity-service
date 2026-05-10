@@ -59,7 +59,10 @@ public class OAuthController {
             @RequestParam("client_id") String clientId,
             @RequestParam("redirect_uri") String redirectUri,
             @RequestParam("response_type") String responseType,
-            @RequestParam(value = "state", required = false) String state) {
+            @RequestParam(value = "state", required = false) String state,
+            @RequestParam(value = "code_challenge", required = false) String codeChallenge,
+            @RequestParam(value = "code_challenge_method", required = false) String codeChallengeMethod,
+            @RequestParam(value = "scope", required = false) String scope) {
 
         Optional<OAuthClient> client = oauthClientRepository.findByClientId(clientId);
         if (client.isEmpty()) {
@@ -73,14 +76,17 @@ public class OAuthController {
 
         // Chuyển hướng người dùng sang trang Login của Frontend
         // Gửi kèm các params để Frontend biết sau khi login xong cần quay lại đâu
-        String loginUrl = UriComponentsBuilder.fromHttpUrl(frontendLoginUrl)
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(frontendLoginUrl)
                 .queryParam("oauth_client_id", clientId)
-                .queryParam("oauth_redirect_uri", redirectUri)
-                .queryParam("oauth_state", state)
-                .build().toUriString();
+                .queryParam("oauth_redirect_uri", redirectUri);
+        
+        if (state != null) builder.queryParam("oauth_state", state);
+        if (scope != null) builder.queryParam("oauth_scope", scope);
+        if (codeChallenge != null) builder.queryParam("oauth_code_challenge", codeChallenge);
+        if (codeChallengeMethod != null) builder.queryParam("oauth_code_challenge_method", codeChallengeMethod);
 
         return ResponseEntity.status(HttpStatus.FOUND)
-                .header("Location", loginUrl)
+                .header("Location", builder.build().toUriString())
                 .build();
     }
 
