@@ -179,4 +179,24 @@ public class AuthController {
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || authentication instanceof org.springframework.security.authentication.AnonymousAuthenticationToken) {
+            return ResponseEntity.status(401).body(new MessageResponse("Error: Not authenticated"));
+        }
+
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        
+        java.util.Map<String, Object> data = new java.util.HashMap<>();
+        data.put("id", userDetails.getId());
+        data.put("email", userDetails.getEmail());
+        data.put("companyId", userDetails.getCompanyId());
+        
+        java.util.Map<String, Object> response = new java.util.HashMap<>();
+        response.put("data", data);
+        
+        return ResponseEntity.ok(response);
+    }
+
 }
