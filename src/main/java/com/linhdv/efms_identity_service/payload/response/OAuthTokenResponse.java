@@ -27,5 +27,6 @@ public class OAuthTokenResponse {
     public OAuthTokenResponse(String accessToken, Long expiresIn) {
         this.accessToken = accessToken;
         this.expiresIn = expiresIn;
+        this.tokenType = "Bearer";
     }
 }
