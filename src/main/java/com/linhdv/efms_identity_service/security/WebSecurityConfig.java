@@ -60,7 +60,7 @@ public class WebSecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/api/identity/auth/**").permitAll()
+                        .requestMatchers("/auth/**", "/api/identity/auth/**", "/oauth/**").permitAll()
                         .requestMatchers("/internal/users/batch").permitAll()
                         .requestMatchers("/test-mail").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()

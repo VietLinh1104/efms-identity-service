@@ -24,9 +24,11 @@ public class JwtUtils {
     private int jwtExpirationMs;
 
     public String generateJwtToken(Authentication authentication) {
-
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
+        return generateTokenFromUserDetails(userPrincipal);
+    }
 
+    public String generateTokenFromUserDetails(UserDetailsImpl userPrincipal) {
         return Jwts.builder()
                 .setSubject((userPrincipal.getEmail()))
                 .claim("userId", userPrincipal.getId())
