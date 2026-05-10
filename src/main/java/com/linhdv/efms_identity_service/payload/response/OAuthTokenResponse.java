@@ -1,19 +1,31 @@
 package com.linhdv.efms_identity_service.payload.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class OAuthTokenResponse {
-    private String access_token;
-    private String token_type = "Bearer";
-    private Long expires_in;
+    @JsonProperty("access_token")
+    private String accessToken;
+
+    @JsonProperty("token_type")
+    private String tokenType = "Bearer";
+
+    @JsonProperty("expires_in")
+    private Long expiresIn;
+
+    @JsonProperty("scope")
     private String scope;
-    private String refresh_token;
+
+    @JsonProperty("refresh_token")
+    private String refreshToken;
 
     public OAuthTokenResponse(String accessToken, Long expiresIn) {
-        this.access_token = accessToken;
-        this.expires_in = expiresIn;
+        this.accessToken = accessToken;
+        this.expiresIn = expiresIn;
     }
 }

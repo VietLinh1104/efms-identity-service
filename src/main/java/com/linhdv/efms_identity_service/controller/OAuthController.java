@@ -120,17 +120,37 @@ public class OAuthController {
     public ResponseEntity<?> token(
             @RequestParam("grant_type") String grantType,
             @RequestParam("code") String code,
-            @RequestParam("client_id") String clientId,
-            @RequestParam("client_secret") String clientSecret,
-            @RequestParam("redirect_uri") String redirectUri) {
+            @RequestParam("redirect_uri") String redirectUri,
+            @RequestParam(value = "client_id", required = false) String clientId,
+            @RequestParam(value = "client_secret", required = false) String clientSecret,
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
 
-        if (!"authorization_code".equals(grantType)) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Unsupported grant type"));
+        // Hỗ trợ Basic Auth từ Header nếu không có trong Body
+        if (clientId == null && authHeader != null && authHeader.startsWith("Basic ")) {
+            try {
+                String base64Credentials = authHeader.substring(6);
+                String credentials = new String(java.util.Base64.getDecoder().decode(base64Credentials));
+                String[] parts = credentials.split(":", 2);
+                if (parts.length == 2) {
+                    clientId = parts[0];
+                    clientSecret = parts[1];
+                }
+            } catch (Exception e) {
+                // Ignore decoding errors
+            }
+        }
+
+        if (clientId == null) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Missing client_id"));
         }
 
         Optional<OAuthClient> client = oauthClientRepository.findByClientId(clientId);
         if (client.isEmpty() || !client.get().getClientSecret().equals(clientSecret)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Error: Invalid client credentials"));
+        }
+
+        if (!"authorization_code".equals(grantType)) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Unsupported grant type"));
         }
 
         String email = codeStorage.remove(code);

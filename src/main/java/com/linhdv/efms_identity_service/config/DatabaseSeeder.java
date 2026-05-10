@@ -20,8 +20,8 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final RolePermissionRepository rolePermissionRepository;
 
     public DatabaseSeeder(RoleRepository roleRepository,
-                          PermissionRepository permissionRepository,
-                          RolePermissionRepository rolePermissionRepository) {
+            PermissionRepository permissionRepository,
+            RolePermissionRepository rolePermissionRepository) {
         this.roleRepository = roleRepository;
         this.permissionRepository = permissionRepository;
         this.rolePermissionRepository = rolePermissionRepository;
@@ -42,8 +42,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 createRole("ROLE_ADMIN", "Quản trị viên toàn hệ thống"),
                 createRole("ROLE_FINANCE_MANAGER", "Quản lý tài chính / Kế toán trưởng"),
                 createRole("ROLE_ACCOUNTANT", "Kế toán viên"),
-                createRole("ROLE_AUDITOR", "Kiểm toán viên")
-        );
+                createRole("ROLE_AUDITOR", "Kiểm toán viên"));
         roleRepository.saveAll(roles);
 
         // 2. Khởi tạo Permissions
@@ -63,8 +62,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 createPermission("payment", "update", "Cập nhật thanh toán"),
                 createPermission("payment", "delete", "Xóa phiếu thanh toán"),
 
-                createPermission("report", "read", "Xem các báo cáo tài chính")
-        );
+                createPermission("report", "read", "Xem các báo cáo tài chính"));
         permissionRepository.saveAll(permissions);
 
         // Map tên Role để dễ dàng truy xuất
@@ -86,8 +84,8 @@ public class DatabaseSeeder implements CommandLineRunner {
             }
 
             // ROLE_ACCOUNTANT: Quyền trên Invoice và Payment, Xem user
-            if (p.getResource().equals("invoice") || p.getResource().equals("payment") || 
-                (p.getResource().equals("user") && p.getAction().equals("read"))) {
+            if (p.getResource().equals("invoice") || p.getResource().equals("payment") ||
+                    (p.getResource().equals("user") && p.getAction().equals("read"))) {
                 rolePermissions.add(createRolePermission(roleMap.get("ROLE_ACCOUNTANT"), p));
             }
 
@@ -123,7 +121,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         RolePermissionId rpId = new RolePermissionId();
         rpId.setRoleId(role.getId());
         rpId.setPermissionId(permission.getId());
-        
+
         rp.setId(rpId);
         rp.setRole(role);
         rp.setPermission(permission);
