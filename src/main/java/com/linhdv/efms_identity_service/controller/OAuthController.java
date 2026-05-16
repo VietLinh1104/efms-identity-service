@@ -32,7 +32,7 @@ public class OAuthController {
     @Autowired
     private JwtUtils jwtUtils;
 
-    @Value("${efms.app.frontend-url:http://localhost:5173/login}")
+    @Value("${public.efms.app.frontend-url:http://localhost:5173/login}")
     private String frontendLoginUrl;
 
     @Value("${efms.app.base-url:http://localhost:8080}")
