@@ -3,7 +3,6 @@ spring:
     activate:
       on-profile: prod
 
-
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
@@ -25,11 +24,15 @@ logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n"
 
+# Trong application-prod.yaml
 efms:
   app:
     jwtSecret: ${JWT_SECRET}
     jwtExpirationMs: ${JWT_EXPIRATION_MS:86400000}
     allowed-origins: ${ALLOWED_ORIGINS:*}
+    base-url: ${EFMS_APP_BASE_URL:https://api.hnhdecor.com} # Thêm dòng này
+    frontend-url: ${PUBLIC_EFMS_APP_FRONTEND_URL:https://efms.hnhdecor.com} # Thêm dòng này
+
 
 resend:
   api-key: ${RESEND_API_KEY}

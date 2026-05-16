@@ -32,7 +32,7 @@ public class OAuthController {
     @Autowired
     private JwtUtils jwtUtils;
 
-    @Value("${public.efms.app.frontend-url:http://localhost:5173/login}")
+    @Value("${public.efms.app.frontend-url:http://localhost:5173}/login")
     private String frontendLoginUrl;
 
     @Value("${efms.app.base-url:http://localhost:8080}")
@@ -50,7 +50,7 @@ public class OAuthController {
         metadata.put("response_types_supported", java.util.List.of("code"));
         metadata.put("grant_types_supported", java.util.List.of("authorization_code", "refresh_token"));
         metadata.put("code_challenge_methods_supported", java.util.List.of("S256"));
-        
+
         return ResponseEntity.ok(metadata);
     }
 
@@ -69,7 +69,8 @@ public class OAuthController {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Client not found"));
         }
 
-        // Kiểm tra redirect_uri có khớp với đăng ký không (hoặc chứa trong danh sách cho phép)
+        // Kiểm tra redirect_uri có khớp với đăng ký không (hoặc chứa trong danh sách
+        // cho phép)
         if (!client.get().getRedirectUri().contains(redirectUri)) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Invalid redirect URI"));
         }
@@ -79,11 +80,15 @@ public class OAuthController {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(frontendLoginUrl)
                 .queryParam("oauth_client_id", clientId)
                 .queryParam("oauth_redirect_uri", redirectUri);
-        
-        if (state != null) builder.queryParam("oauth_state", state);
-        if (scope != null) builder.queryParam("oauth_scope", scope);
-        if (codeChallenge != null) builder.queryParam("oauth_code_challenge", codeChallenge);
-        if (codeChallengeMethod != null) builder.queryParam("oauth_code_challenge_method", codeChallengeMethod);
+
+        if (state != null)
+            builder.queryParam("oauth_state", state);
+        if (scope != null)
+            builder.queryParam("oauth_scope", scope);
+        if (codeChallenge != null)
+            builder.queryParam("oauth_code_challenge", codeChallenge);
+        if (codeChallengeMethod != null)
+            builder.queryParam("oauth_code_challenge_method", codeChallengeMethod);
 
         return ResponseEntity.status(HttpStatus.FOUND)
                 .header("Location", builder.build().toUriString())
@@ -146,7 +151,8 @@ public class OAuthController {
 
         Optional<OAuthClient> client = oauthClientRepository.findByClientId(clientId);
         if (client.isEmpty() || !client.get().getClientSecret().equals(clientSecret)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Error: Invalid client credentials"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new MessageResponse("Error: Invalid client credentials"));
         }
 
         if (!"authorization_code".equals(grantType)) {
